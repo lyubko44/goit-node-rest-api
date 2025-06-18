@@ -97,8 +97,11 @@ npm run dev
 - 200: Повідомлення про успішне видалення
 - 404: Not found
 
-### PATCH /api/contacts/:id/favorite
+### PATCH /api/contacts/:contactId/favorite
 Оновити статус favorite контакту
+
+**Параметри:**
+- `contactId` - ID контакту
 
 **Тіло запиту:**
 ```json
@@ -107,10 +110,39 @@ npm run dev
 }
 ```
 
-**Відповідь:**
-- 200: Оновлений контакт
-- 400: Помилка валідації
-- 404: Not found
+**Приклад запиту:**
+```bash
+curl -X PATCH http://localhost:3000/api/contacts/1/favorite \
+  -H "Content-Type: application/json" \
+  -d '{"favorite": true}'
+```
+
+**Відповідь 200:**
+```json
+{
+  "id": 1,
+  "name": "Allen Raymond",
+  "email": "nulla.ante@vestibul.co.uk",
+  "phone": "(992) 914-3792",
+  "favorite": true,
+  "createdAt": "2023-01-01T00:00:00.000Z",
+  "updatedAt": "2023-01-01T00:00:00.000Z"
+}
+```
+
+**Відповідь 404:**
+```json
+{
+  "message": "Not found"
+}
+```
+
+**Відповідь 400 (помилка валідації):**
+```json
+{
+  "message": "Validation error details"
+}
+```
 
 ## Структура проекту
 

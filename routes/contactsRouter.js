@@ -27,6 +27,6 @@ contactsRouter.post("/", validateBody(createContactSchema), createContact);
 
 contactsRouter.put("/:id", validateBody(updateContactSchema), updateContact);
 
-contactsRouter.patch("/:id/favorite", validateBody(updateStatusSchema), updateContactStatus);
+contactsRouter.patch("/:contactId/favorite", validateBody(updateStatusSchema), updateContactStatus);
 
 export default contactsRouter;
