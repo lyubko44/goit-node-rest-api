@@ -28,6 +28,81 @@ npm run dev
 
 ## API Endpoints
 
+### Authentication
+
+#### POST /api/auth/register
+Реєстрація нового користувача
+
+**Тіло запиту:**
+```json
+{
+  "email": "example@example.com",
+  "password": "examplepassword"
+}
+```
+
+**Відповідь 201 (успішна реєстрація):**
+```json
+{
+  "user": {
+    "email": "example@example.com",
+    "subscription": "starter"
+  }
+}
+```
+
+**Відповідь 400 (помилка валідації):**
+```json
+{
+  "message": "Помилка від Joi або іншої бібліотеки валідації"
+}
+```
+
+**Відповідь 409 (email вже використовується):**
+```json
+{
+  "message": "Email in use"
+}
+```
+
+#### POST /api/auth/login
+Логін користувача
+
+**Тіло запиту:**
+```json
+{
+  "email": "example@example.com",
+  "password": "examplepassword"
+}
+```
+
+**Відповідь 200 (успішний логін):**
+```json
+{
+  "token": "exampletoken",
+  "user": {
+    "email": "example@example.com",
+    "subscription": "starter"
+  }
+}
+```
+
+**Відповідь 400 (помилка валідації):**
+```json
+{
+  "message": "Помилка від Joi або іншої бібліотеки валідації"
+}
+```
+
+**Відповідь 401 (невірний email або пароль):**
+```json
+{
+  "message": "Email or password is wrong"
+}
+```
+
+### Contacts
+
 ### GET /api/contacts
 Отримати всі контакти
 
@@ -174,4 +249,7 @@ curl -X PATCH http://localhost:3000/api/contacts/1/favorite \
 - Sequelize ORM
 - Joi (валідація)
 - Morgan (логування)
-- CORS 
+- CORS
+- bcryptjs (хешування паролів)
+- jsonwebtoken (JWT токени)
+- dotenv (змінні середовища) 
