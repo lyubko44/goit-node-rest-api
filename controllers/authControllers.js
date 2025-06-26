@@ -27,4 +27,18 @@ export const login = async (req, res, next) => {
       next(HttpError(500, error.message));
     }
   }
+};
+
+// Контролер логауту
+export const logout = async (req, res, next) => {
+  try {
+    await authService.logoutUser(req.user.id);
+    res.status(204).send();
+  } catch (error) {
+    if (error.message === 'Not authorized') {
+      next(HttpError(401, error.message));
+    } else {
+      next(HttpError(500, error.message));
+    }
+  }
 }; 

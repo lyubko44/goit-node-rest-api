@@ -74,4 +74,22 @@ export const loginUser = async (userData) => {
   } catch (error) {
     throw error;
   }
+};
+
+// Логаут користувача
+export const logoutUser = async (userId) => {
+  try {
+    // Знаходження користувача за id
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Not authorized');
+    }
+    
+    // Видалення токену з бази даних
+    await user.update({ token: null });
+    
+    return true;
+  } catch (error) {
+    throw error;
+  }
 }; 
