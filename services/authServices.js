@@ -92,4 +92,22 @@ export const logoutUser = async (userId) => {
   } catch (error) {
     throw error;
   }
+};
+
+// Отримання даних поточного користувача
+export const getCurrentUser = async (userId) => {
+  try {
+    // Знаходження користувача за id
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Not authorized');
+    }
+    
+    return {
+      email: user.email,
+      subscription: user.subscription,
+    };
+  } catch (error) {
+    throw error;
+  }
 }; 

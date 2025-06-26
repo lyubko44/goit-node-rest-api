@@ -41,4 +41,18 @@ export const logout = async (req, res, next) => {
       next(HttpError(500, error.message));
     }
   }
+};
+
+// Контролер отримання поточного користувача
+export const current = async (req, res, next) => {
+  try {
+    const result = await authService.getCurrentUser(req.user.id);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error.message === 'Not authorized') {
+      next(HttpError(401, error.message));
+    } else {
+      next(HttpError(500, error.message));
+    }
+  }
 }; 

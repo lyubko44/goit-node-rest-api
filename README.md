@@ -121,6 +121,29 @@ No Content
 }
 ```
 
+#### GET /api/auth/current
+Отримання даних поточного користувача
+
+**Заголовки:**
+```
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
+**Відповідь 200 (успішно):**
+```json
+{
+  "email": "user@example.com",
+  "subscription": "starter"
+}
+```
+
+**Відповідь 401 (не авторизовано):**
+```json
+{
+  "message": "Not authorized"
+}
+```
+
 ### Contacts
 
 **⚠️ Усі ендпоінти контактів потребують аутентифікації!**
