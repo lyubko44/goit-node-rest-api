@@ -4,7 +4,7 @@ import cors from "cors";
 
 import contactsRouter from "./routes/contactsRouter.js";
 import sequelize, { testConnection } from "./db/config.js";
-import "./models/Contact.js"; // Імпорт моделі для ініціалізації
+import "./models/index.js"; // Імпорт моделей з асоціаціями
 
 const app = express();
 
