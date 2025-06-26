@@ -3,6 +3,8 @@ import morgan from "morgan";
 import cors from "cors";
 
 import contactsRouter from "./routes/contactsRouter.js";
+import sequelize, { testConnection } from "./db/config.js";
+import "./models/Contact.js"; // Імпорт моделі для ініціалізації
 
 const app = express();
 
@@ -21,6 +23,24 @@ app.use((err, req, res, next) => {
   res.status(status).json({ message });
 });
 
-app.listen(3000, () => {
-  console.log("Server is running. Use our API on port: 3000");
-});
+// Ініціалізація бази даних та запуск сервера
+const startServer = async () => {
+  try {
+    // Тестування підключення до бази даних
+    await testConnection();
+    
+    // Синхронізація моделей з базою даних
+    await sequelize.sync();
+    console.log('Database synchronized successfully');
+    
+    // Запуск сервера
+    app.listen(3000, () => {
+      console.log("Server is running. Use our API on port: 3000");
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
