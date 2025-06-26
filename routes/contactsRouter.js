@@ -9,6 +9,7 @@ import {
 } from "../controllers/contactsControllers.js";
 
 import validateBody from "../helpers/validateBody.js";
+import authenticate from "../helpers/authenticate.js";
 import { 
   createContactSchema, 
   updateContactSchema, 
@@ -16,6 +17,9 @@ import {
 } from "../schemas/contactsSchemas.js";
 
 const contactsRouter = express.Router();
+
+// Всі маршрути контактів потребують аутентифікації
+contactsRouter.use(authenticate);
 
 contactsRouter.get("/", getAllContacts);
 

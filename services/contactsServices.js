@@ -1,9 +1,10 @@
-import Contact from '../models/Contact.js';
+import { Contact } from '../models/index.js';
 
-// Отримати всі контакти
-export const listContacts = async () => {
+// Отримати всі контакти користувача
+export const listContacts = async (userId) => {
   try {
     const contacts = await Contact.findAll({
+      where: { owner: userId },
       order: [['id', 'ASC']]
     });
     return contacts;
@@ -12,20 +13,29 @@ export const listContacts = async () => {
   }
 };
 
-// Отримати контакт за ID
-export const getContactById = async (contactId) => {
+// Отримати контакт за ID (тільки якщо належить користувачу)
+export const getContactById = async (contactId, userId) => {
   try {
-    const contact = await Contact.findByPk(contactId);
+    const contact = await Contact.findOne({
+      where: { 
+        id: contactId,
+        owner: userId 
+      }
+    });
     return contact;
   } catch (error) {
     throw new Error(`Error fetching contact: ${error.message}`);
   }
 };
 
-// Створити новий контакт
-export const addContact = async (body) => {
+// Створити новий контакт для користувача
+export const addContact = async (body, userId) => {
   try {
-    const contact = await Contact.create(body);
+    const contactData = {
+      ...body,
+      owner: userId
+    };
+    const contact = await Contact.create(contactData);
     return contact;
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
@@ -35,18 +45,26 @@ export const addContact = async (body) => {
   }
 };
 
-// Оновити контакт
-export const updateContact = async (contactId, body) => {
+// Оновити контакт (тільки якщо належить користувачу)
+export const updateContact = async (contactId, body, userId) => {
   try {
     const [updatedRowsCount] = await Contact.update(body, {
-      where: { id: contactId }
+      where: { 
+        id: contactId,
+        owner: userId 
+      }
     });
     
     if (updatedRowsCount === 0) {
       return null;
     }
     
-    const updatedContact = await Contact.findByPk(contactId);
+    const updatedContact = await Contact.findOne({
+      where: { 
+        id: contactId,
+        owner: userId 
+      }
+    });
     return updatedContact;
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
@@ -56,10 +74,16 @@ export const updateContact = async (contactId, body) => {
   }
 };
 
-// Видалити контакт
-export const removeContact = async (contactId) => {
+// Видалити контакт (тільки якщо належить користувачу)
+export const removeContact = async (contactId, userId) => {
   try {
-    const contact = await Contact.findByPk(contactId);
+    const contact = await Contact.findOne({
+      where: { 
+        id: contactId,
+        owner: userId 
+      }
+    });
+    
     if (!contact) {
       return null;
     }
@@ -71,18 +95,26 @@ export const removeContact = async (contactId) => {
   }
 };
 
-// Оновити статус контакту
-export const updateStatusContact = async (contactId, body) => {
+// Оновити статус контакту (тільки якщо належить користувачу)
+export const updateStatusContact = async (contactId, body, userId) => {
   try {
     const [updatedRowsCount] = await Contact.update(body, {
-      where: { id: contactId }
+      where: { 
+        id: contactId,
+        owner: userId 
+      }
     });
     
     if (updatedRowsCount === 0) {
       return null;
     }
     
-    const updatedContact = await Contact.findByPk(contactId);
+    const updatedContact = await Contact.findOne({
+      where: { 
+        id: contactId,
+        owner: userId 
+      }
+    });
     return updatedContact;
   } catch (error) {
     throw new Error(`Error updating contact status: ${error.message}`);
