@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import gravatar from 'gravatar';
 import { User } from '../models/index.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_fallback_secret_key';
@@ -24,16 +25,25 @@ export const registerUser = async (userData) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     
+    // Генерація аватара через gravatar
+    const avatarURL = gravatar.url(email, {
+      s: '250', // розмір 250x250
+      r: 'pg', // рейтинг PG
+      d: 'identicon' // за замовчуванням - identicon
+    }, true); // https замість http
+    
     // Створення користувача
     const newUser = await User.create({
       email,
       password: hashedPassword,
+      avatarURL,
     });
     
     return {
       user: {
         email: newUser.email,
         subscription: newUser.subscription,
+        avatarURL: newUser.avatarURL,
       }
     };
   } catch (error) {
@@ -69,6 +79,7 @@ export const loginUser = async (userData) => {
       user: {
         email: user.email,
         subscription: user.subscription,
+        avatarURL: user.avatarURL,
       }
     };
   } catch (error) {
@@ -106,6 +117,7 @@ export const getCurrentUser = async (userId) => {
     return {
       email: user.email,
       subscription: user.subscription,
+      avatarURL: user.avatarURL,
     };
   } catch (error) {
     throw error;
