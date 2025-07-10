@@ -55,4 +55,22 @@ export const current = async (req, res, next) => {
       next(HttpError(500, error.message));
     }
   }
+};
+
+// Контролер оновлення аватара
+export const updateAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return next(HttpError(400, 'Avatar file is required'));
+    }
+    
+    const result = await authService.updateAvatar(req.user.id, req.file);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error.message === 'Not authorized') {
+      next(HttpError(401, error.message));
+    } else {
+      next(HttpError(500, error.message));
+    }
+  }
 }; 

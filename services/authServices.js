@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import gravatar from 'gravatar';
+import fs from 'fs/promises';
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/index.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_fallback_secret_key';
@@ -27,10 +30,10 @@ export const registerUser = async (userData) => {
     
     // Генерація аватара через gravatar
     const avatarURL = gravatar.url(email, {
-      s: '250', // розмір 250x250
-      r: 'pg', // рейтинг PG
-      d: 'identicon' // за замовчуванням - identicon
-    }, true); // https замість http
+      s: '250',
+      r: 'pg',
+      d: 'identicon'
+    }, true);
     
     // Створення користувача
     const newUser = await User.create({
@@ -120,6 +123,46 @@ export const getCurrentUser = async (userId) => {
       avatarURL: user.avatarURL,
     };
   } catch (error) {
+    throw error;
+  }
+};
+
+// Оновлення аватара користувача
+export const updateAvatar = async (userId, file) => {
+  try {
+    // Знаходження користувача за id
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Not authorized');
+    }
+
+    // Генерація унікального імені файлу
+    const fileExtension = path.extname(file.originalname);
+    const uniqueFileName = `${uuidv4()}${fileExtension}`;
+    
+    // Шляхи до файлів
+    const tempPath = file.path;
+    const finalPath = path.join('public', 'avatars', uniqueFileName);
+    
+    // Переміщення файлу з temp до public/avatars
+    await fs.rename(tempPath, finalPath);
+    
+    // Створення URL для аватара
+    const avatarURL = `/avatars/${uniqueFileName}`;
+    
+    // Оновлення користувача в базі даних
+    await user.update({ avatarURL });
+    
+    return { avatarURL };
+  } catch (error) {
+    // Видалення тимчасового файлу в разі помилки
+    if (file && file.path) {
+      try {
+        await fs.unlink(file.path);
+      } catch (unlinkError) {
+        console.error('Error deleting temp file:', unlinkError);
+      }
+    }
     throw error;
   }
 }; 
