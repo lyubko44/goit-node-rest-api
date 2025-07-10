@@ -28,8 +28,133 @@ npm run dev
 
 ## API Endpoints
 
+### Authentication
+
+#### POST /api/auth/register
+Реєстрація нового користувача
+
+**Тіло запиту:**
+```json
+{
+  "email": "example@example.com",
+  "password": "examplepassword"
+}
+```
+
+**Відповідь 201 (успішна реєстрація):**
+```json
+{
+  "user": {
+    "email": "example@example.com",
+    "subscription": "starter"
+  }
+}
+```
+
+**Відповідь 400 (помилка валідації):**
+```json
+{
+  "message": "Помилка від Joi або іншої бібліотеки валідації"
+}
+```
+
+**Відповідь 409 (email вже використовується):**
+```json
+{
+  "message": "Email in use"
+}
+```
+
+#### POST /api/auth/login
+Логін користувача
+
+**Тіло запиту:**
+```json
+{
+  "email": "example@example.com",
+  "password": "examplepassword"
+}
+```
+
+**Відповідь 200 (успішний логін):**
+```json
+{
+  "token": "exampletoken",
+  "user": {
+    "email": "example@example.com",
+    "subscription": "starter"
+  }
+}
+```
+
+**Відповідь 400 (помилка валідації):**
+```json
+{
+  "message": "Помилка від Joi або іншої бібліотеки валідації"
+}
+```
+
+**Відповідь 401 (невірний email або пароль):**
+```json
+{
+  "message": "Email or password is wrong"
+}
+```
+
+#### POST /api/auth/logout
+Логаут користувача (видалення токена)
+
+**Заголовки:**
+```
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
+**Відповідь 204 (успішний логаут):**
+```
+No Content
+```
+
+**Відповідь 401 (не авторизовано):**
+```json
+{
+  "message": "Not authorized"
+}
+```
+
+#### GET /api/auth/current
+Отримання даних поточного користувача
+
+**Заголовки:**
+```
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
+**Відповідь 200 (успішно):**
+```json
+{
+  "email": "user@example.com",
+  "subscription": "starter"
+}
+```
+
+**Відповідь 401 (не авторизовано):**
+```json
+{
+  "message": "Not authorized"
+}
+```
+
+### Contacts
+
+**⚠️ Усі ендпоінти контактів потребують аутентифікації!**
+
+Для доступу до контактів потрібно включити заголовок:
+```
+Authorization: Bearer YOUR_JWT_TOKEN
+```
+
 ### GET /api/contacts
-Отримати всі контакти
+Отримати всі контакти поточного користувача
 
 **Відповідь:**
 ```json
@@ -144,6 +269,19 @@ curl -X PATCH http://localhost:3000/api/contacts/1/favorite \
 }
 ```
 
+**Відповідь 401 (не авторизовано):**
+```json
+{
+  "message": "Not authorized"
+}
+```
+
+**Примітка:** Помилка 401 повертається у випадках:
+- Відсутній заголовок Authorization
+- Невірний формат токена
+- Токен застарілий або невалідний
+- Користувач не існує або токен не збігається з базою даних
+
 ## Структура проекту
 
 ```
@@ -174,4 +312,7 @@ curl -X PATCH http://localhost:3000/api/contacts/1/favorite \
 - Sequelize ORM
 - Joi (валідація)
 - Morgan (логування)
-- CORS 
+- CORS
+- bcryptjs (хешування паролів)
+- jsonwebtoken (JWT токени)
+- dotenv (змінні середовища) 

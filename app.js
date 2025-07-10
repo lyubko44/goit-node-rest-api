@@ -3,8 +3,9 @@ import morgan from "morgan";
 import cors from "cors";
 
 import contactsRouter from "./routes/contactsRouter.js";
+import authRouter from "./routes/authRouter.js";
 import sequelize, { testConnection } from "./db/config.js";
-import "./models/Contact.js"; // Імпорт моделі для ініціалізації
+import "./models/index.js"; // Імпорт моделей з асоціаціями
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/contacts", contactsRouter);
+app.use("/api/auth", authRouter);
 
 app.use((_, res) => {
   res.status(404).json({ message: "Route not found" });
