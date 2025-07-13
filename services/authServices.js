@@ -5,6 +5,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../models/index.js';
+import { sendWelcomeEmail, sendVerificationEmail } from './emailServices.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_fallback_secret_key';
 
@@ -35,18 +36,32 @@ export const registerUser = async (userData) => {
       d: 'identicon'
     }, true);
     
+    // Генерація токена верифікації
+    const verificationToken = uuidv4();
+    
     // Створення користувача
     const newUser = await User.create({
       email,
       password: hashedPassword,
       avatarURL,
+      verificationToken,
+      verify: false,
     });
+    
+    // Відправлення листа для верифікації
+    try {
+      await sendVerificationEmail(newUser.email, verificationToken);
+    } catch (emailError) {
+      console.error('Error sending verification email:', emailError);
+      // Не перериваємо реєстрацію, якщо лист не відправився
+    }
     
     return {
       user: {
         email: newUser.email,
         subscription: newUser.subscription,
         avatarURL: newUser.avatarURL,
+        verify: newUser.verify,
       }
     };
   } catch (error) {
@@ -71,6 +86,11 @@ export const loginUser = async (userData) => {
       throw new Error('Email or password is wrong');
     }
     
+    // Перевірка верифікації email
+    if (!user.verify) {
+      throw new Error('Email not verified');
+    }
+    
     // Генерація токену
     const token = generateToken(user.id);
     
@@ -83,6 +103,7 @@ export const loginUser = async (userData) => {
         email: user.email,
         subscription: user.subscription,
         avatarURL: user.avatarURL,
+        verify: user.verify,
       }
     };
   } catch (error) {
@@ -121,6 +142,55 @@ export const getCurrentUser = async (userId) => {
       email: user.email,
       subscription: user.subscription,
       avatarURL: user.avatarURL,
+      verify: user.verify,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Повторна відправка email для верифікації
+export const resendVerificationEmail = async (email) => {
+  try {
+    // Знаходження користувача за email
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    // Перевірка чи користувач вже верифікований
+    if (user.verify) {
+      throw new Error('Verification has already been passed');
+    }
+    
+    // Відправлення листа для верифікації
+    await sendVerificationEmail(user.email, user.verificationToken);
+    
+    return {
+      message: 'Verification email sent'
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Верифікація користувача
+export const verifyUser = async (verificationToken) => {
+  try {
+    // Знаходження користувача за verificationToken
+    const user = await User.findOne({ where: { verificationToken } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    // Оновлення статусу верифікації
+    await user.update({ 
+      verify: true, 
+      verificationToken: null 
+    });
+    
+    return {
+      message: 'Verification successful'
     };
   } catch (error) {
     throw error;

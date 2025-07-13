@@ -27,4 +27,13 @@ export const loginSchema = Joi.object({
     'string.empty': 'Password is required',
     'any.required': 'Password is required'
   })
+});
+
+export const verifyEmailSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    'string.base': 'Email must be a string',
+    'string.empty': 'missing required field email',
+    'string.email': 'Email must be a valid email address',
+    'any.required': 'missing required field email'
+  })
 }); 

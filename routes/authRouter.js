@@ -1,9 +1,9 @@
 import express from "express";
-import { register, login, logout, current, updateAvatar } from "../controllers/authControllers.js";
+import { register, login, logout, current, updateAvatar, sendTestEmail, verifyEmail, resendVerificationEmail } from "../controllers/authControllers.js";
 import validateBody from "../helpers/validateBody.js";
 import authenticate from "../helpers/authenticate.js";
 import upload from "../helpers/upload.js";
-import { registerSchema, loginSchema } from "../schemas/authSchemas.js";
+import { registerSchema, loginSchema, verifyEmailSchema } from "../schemas/authSchemas.js";
 
 const authRouter = express.Router();
 
@@ -21,5 +21,14 @@ authRouter.get("/current", authenticate, current);
 
 // PATCH /api/auth/avatars - оновлення аватара користувача (потребує аутентифікації)
 authRouter.patch("/avatars", authenticate, upload.single('avatar'), updateAvatar);
+
+// POST /api/auth/send-test-email - відправлення тестового листа
+authRouter.post("/send-test-email", sendTestEmail);
+
+// POST /api/auth/verify - повторна відправка email для верифікації
+authRouter.post("/verify", validateBody(verifyEmailSchema), resendVerificationEmail);
+
+// GET /api/auth/verify/:verificationToken - верифікація email
+authRouter.get("/verify/:verificationToken", verifyEmail);
 
 export default authRouter; 
