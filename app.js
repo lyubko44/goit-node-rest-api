@@ -13,6 +13,9 @@ app.use(morgan("tiny"));
 app.use(cors());
 app.use(express.json());
 
+// Налаштування роздачі статичних файлів
+app.use(express.static("public"));
+
 app.use("/api/contacts", contactsRouter);
 app.use("/api/auth", authRouter);
 
