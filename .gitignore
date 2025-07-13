@@ -60,7 +60,8 @@ dist
 
 # Temporary folders
 tmp/
-temp/
+temp/*
+!temp/.gitkeep
 
 # OS generated files
 .DS_Store

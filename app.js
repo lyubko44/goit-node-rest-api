@@ -1,6 +1,8 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import fs from 'fs';
+import path from 'path';
 
 import contactsRouter from "./routes/contactsRouter.js";
 import authRouter from "./routes/authRouter.js";
@@ -28,9 +30,24 @@ app.use((err, req, res, next) => {
   res.status(status).json({ message });
 });
 
+// Створення необхідних папок
+const createDirectories = () => {
+  const directories = ['temp', 'public', 'public/avatars'];
+  
+  directories.forEach(dir => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+      console.log(`Created directory: ${dir}`);
+    }
+  });
+};
+
 // Ініціалізація бази даних та запуск сервера
 const startServer = async () => {
   try {
+    // Створення необхідних папок
+    createDirectories();
+    
     // Тестування підключення до бази даних
     await testConnection();
     
